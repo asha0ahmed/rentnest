@@ -17,7 +17,6 @@ const app = express();
 connectDatabase();
 
 // Middleware - These run before your routes
-const cors = require('cors');
 
 app.use(cors({
   origin: ['https://rentnest-three.vercel.app', 'http://localhost:3000'],
