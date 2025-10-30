@@ -17,7 +17,11 @@ const app = express();
 connectDatabase();
 
 // Middleware - These run before your routes
-app.use(cors()); // Allow frontend to connect
+app.use(cors({
+  origin: ['https://rentnest-three.vercel.app', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
+}));                               // Allow frontend to connect
 app.use(express.json()); // Parse JSON data from requests
 
 // Basic test route
