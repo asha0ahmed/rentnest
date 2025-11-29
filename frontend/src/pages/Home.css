@@ -429,6 +429,28 @@
   font-weight: 500;
 }
 
+.bangla-highlight {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2905f3;
+  background: #d1fae5;
+  padding: 16px 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border-left: 4px solid #2563eb;
+  box-shadow: 0 4px 12px rgba(1, 5, 238, 0.342);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bangla-highlight {
+    font-size: 16px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .terms-section {

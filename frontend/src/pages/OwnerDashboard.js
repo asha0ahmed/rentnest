@@ -63,17 +63,17 @@ const OwnerDashboard = () => {
         <div className="dashboard-header">
           <div>
             <h1>My Properties Dashboard</h1>
-            <p>Welcome back, {user?.fullName}! 👋</p>
+            <p>Welcome back, {user?.fullName}! </p>
           </div>
           <Link to="/properties/create" className="btn btn-primary">
-            + Add New Property
+            + Add New Property<br/>বাসা ভাড়ার বিজ্ঞাপন দিন
           </Link>
         </div>
 
         {/* Stats Cards */}
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon">🏘️</div>
+            <div className="stat-icon"></div>
             <div className="stat-info">
               <h3>{properties.length}</h3>
               <p>Total Properties</p>
@@ -81,7 +81,7 @@ const OwnerDashboard = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon">✅</div>
+            <div className="stat-icon"></div>
             <div className="stat-info">
               <h3>{properties.filter(p => p.isAvailable).length}</h3>
               <p>Available</p>
@@ -89,7 +89,7 @@ const OwnerDashboard = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon">❌</div>
+            <div className="stat-icon"></div>
             <div className="stat-info">
               <h3>{properties.filter(p => !p.isAvailable).length}</h3>
               <p>Unavailable</p>
@@ -180,7 +180,7 @@ const PropertyCard = ({ property, onDelete, onToggle }) => {
             className={`btn-action ${property.isAvailable ? 'btn-toggle-off' : 'btn-toggle-on'}`}
             onClick={() => onToggle(property._id, property.isAvailable)}
           >
-            {property.isAvailable ? '🔴 Mark Unavailable' : '🟢 Mark Available'}
+            {property.isAvailable ? '🔴 ভাড়া হয়ে গিয়েছে' : '🟢 Mark Available'}
           </button>
           <button
             className="btn-action btn-delete"

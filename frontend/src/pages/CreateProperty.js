@@ -179,12 +179,12 @@ const CreateProperty = () => {
             <h2>Basic Information</h2>
             
             <div className="form-group">
-              <label className="form-label">Property Title *</label>
+              <label className="form-label">Property Title(বাসার শিরোনাম)*</label>
               <input
                 type="text"
                 name="title"
                 className="form-input"
-                placeholder="e.g., Beautiful 2BHK Apartment in Dhanmondi"
+                placeholder="যেমন: খুলনার মধ্যে সুন্দর ফ্যামিলি বাসা/হোস্টেল/সাবলেট/ফ্লাট  Beautiful Apartment in Khulna"
                 value={formData.title}
                 onChange={handleChange}
                 required
@@ -192,11 +192,11 @@ const CreateProperty = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Description *</label>
+              <label className="form-label">Description(বর্ণনা) *</label>
               <textarea
                 name="description"
                 className="form-textarea"
-                placeholder="Describe your property in detail..."
+                placeholder="আপনার বাসার বিস্তারিত বর্ণনা দিন..."
                 value={formData.description}
                 onChange={handleChange}
                 rows="5"
@@ -206,7 +206,7 @@ const CreateProperty = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Property Type *</label>
+                <label className="form-label">Property Type(বাসার ধরন) *</label>
                 <select
                   name="propertyType"
                   className="form-select"
@@ -214,11 +214,11 @@ const CreateProperty = () => {
                   onChange={handleChange}
                   required
                 >
-                  <option value="apartment">Apartment</option>
-                  <option value="hostel">Hostel</option>
-                  <option value="sublet">Sublet</option>
-                  <option value="room">Room</option>
-                  <option value="house">House</option>
+                  <option value="apartment">Apartment(ফ্লাট)</option>
+                  <option value="hostel">Hostel(হোস্টেল/মেস)</option>
+                  <option value="sublet">Sublet(সাবলেট)</option>
+                  <option value="room">Room(রুম)</option>
+                  <option value="house">House(বাড়ি)</option>
                 </select>
               </div>
             </div>
@@ -230,7 +230,7 @@ const CreateProperty = () => {
             
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Division *</label>
+                <label className="form-label">Division(বিভাগ) *</label>
                 <select
                   name="division"
                   className="form-select"
@@ -250,12 +250,12 @@ const CreateProperty = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">District *</label>
+                <label className="form-label">District(জেলা) *</label>
                 <input
                   type="text"
                   name="district"
                   className="form-input"
-                  placeholder="e.g., Dhaka"
+                  placeholder="Example:Dhaka"
                   value={formData.district}
                   onChange={handleChange}
                   required
@@ -265,12 +265,12 @@ const CreateProperty = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Area/Locality *</label>
+                <label className="form-label">Area/Locality(এরিয়া) *</label>
                 <input
                   type="text"
                   name="area"
                   className="form-input"
-                  placeholder="e.g., Dhanmondi, Gulshan"
+                  placeholder="Example: Dhanmondi, Gulshan"
                   value={formData.area}
                   onChange={handleChange}
                   required
@@ -279,12 +279,12 @@ const CreateProperty = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Full Address *</label>
+              <label className="form-label">Full Address(বিস্তারিত ঠিকানা) *</label>
               <input
                 type="text"
                 name="address"
                 className="form-input"
-                placeholder="e.g., Road 27, House 15, Dhanmondi, Dhaka 1209"
+                placeholder="Example: Road 27, House 15, Dhanmondi, Dhaka 1209"
                 value={formData.address}
                 onChange={handleChange}
                 required
@@ -298,12 +298,12 @@ const CreateProperty = () => {
             
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Rent Amount (BDT) *</label>
+                <label className="form-label">Rent Amount-বিস্তারিত ঠিকানা (BDT) *</label>
                 <input
                   type="number"
                   name="rentAmount"
                   className="form-input"
-                  placeholder="e.g., 25000"
+                  placeholder="Example: 25000"
                   value={formData.rentAmount}
                   onChange={handleChange}
                   required
@@ -404,12 +404,12 @@ const CreateProperty = () => {
             <h2>Amenities</h2>
             
             <div className="form-group">
-              <label className="form-label">Amenities (comma-separated)</label>
+              <label className="form-label">Amenities-সুযোগ সুবিধা (comma-separated)</label>
               <input
                 type="text"
                 name="amenities"
                 className="form-input"
-                placeholder="e.g., WiFi, Parking, Security, Generator, Lift"
+                placeholder="Example: WiFi, Parking, Security, Generator, Lift......."
                 value={formData.amenities}
                 onChange={handleChange}
               />
@@ -486,12 +486,12 @@ const CreateProperty = () => {
             <h2>Contact Information</h2>
             
             <div className="form-group">
-              <label className="form-label">Contact Name *</label>
+              <label className="form-label">Contact Name(আপনার নাম) *</label>
               <input
                 type="text"
                 name="contactName"
                 className="form-input"
-                placeholder="Your name"
+                placeholder="আপনার নাম"
                 value={formData.contactName}
                 onChange={handleChange}
                 required
@@ -500,7 +500,7 @@ const CreateProperty = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Phone Number *</label>
+                <label className="form-label">Phone Number(মোবাইল নাম্বার) *</label>
                 <input
                   type="tel"
                   name="contactPhone"
@@ -513,7 +513,7 @@ const CreateProperty = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Email (Optional)</label>
+                <label className="form-label">Email-ইমেইল (Optional)</label>
                 <input
                   type="email"
                   name="contactEmail"

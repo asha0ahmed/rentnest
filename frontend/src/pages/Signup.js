@@ -114,7 +114,7 @@ const Signup = () => {
           <form onSubmit={handleSubmit}>
             {/* Full Name */}
             <div className="form-group">
-              <label className="form-label">Full Name *</label>
+              <label className="form-label">Full Name (নাম) *</label>
               <input
                 type="text"
                 name="fullName"
@@ -128,7 +128,7 @@ const Signup = () => {
 
             {/* Account Type Selection */}
             <div className="form-group">
-              <label className="form-label">I am a *</label>
+              <label className="form-label">I am a (আমি একজন)*</label>
               <div className="account-type-toggle">
                 <label className={`account-option ${formData.accountType === 'tenant' ? 'active' : ''}`}>
                   <input
@@ -138,7 +138,7 @@ const Signup = () => {
                     checked={formData.accountType === 'tenant'}
                     onChange={handleChange}
                   />
-                  <span>🏠 Tenant (Looking for a place)</span>
+                  <span>🏠 Tenant (ভাড়াটিয়া)</span>
                 </label>
                 <label className={`account-option ${formData.accountType === 'owner' ? 'active' : ''}`}>
                   <input
@@ -148,7 +148,7 @@ const Signup = () => {
                     checked={formData.accountType === 'owner'}
                     onChange={handleChange}
                   />
-                  <span>🏘️ Owner (Have property to rent)</span>
+                  <span>🏘️ Owner (বাড়িওয়ালা)</span>
                 </label>
               </div>
             </div>

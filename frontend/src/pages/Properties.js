@@ -116,12 +116,12 @@ const Properties = () => {
                 value={filters.propertyType}
                 onChange={handleFilterChange}
               >
-                <option value="">All Property Types</option>
-                <option value="apartment">Apartment</option>
-                <option value="hostel">Hostel</option>
-                <option value="sublet">Sublet</option>
-                <option value="room">Room</option>
-                <option value="house">House</option>
+                <option value="">Property Types(বাসার ধরন)</option>
+                <option value="apartment">Apartment(ফ্লাট)</option>
+                <option value="hostel">Hostel(হোস্টেল/মেস)</option>
+                <option value="sublet">Sublet(সাবলেট)</option>
+                <option value="room">Room(রুম)</option>
+                <option value="house">House(বাড়ি)</option>
               </select>
 
               {/* Division */}

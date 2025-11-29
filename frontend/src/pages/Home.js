@@ -18,10 +18,10 @@ const Home = () => {
             </p>
             <div className="hero-buttons">
               <Link to="/properties" className="btn btn-primary btn-lg">
-                Browse Properties
+                Browse Properties<br/>বাসা খুঁজুন
               </Link>
               <Link to="/signup" className="btn btn-secondary btn-lg">
-                List Your Property
+                List Your Property<br/>বাসা ভাড়া দিন
               </Link>
             </div>
           </div>
@@ -33,6 +33,10 @@ const Home = () => {
 <section className="terms-section">
   <div className="container">
     <h2 className="section-title">Terms & Conditions</h2>
+     {/* Add this highlighted Bangla text */}
+    <div className="bangla-highlight">
+     বাড়ির মালিকের সাথে কোন আর্থিক লেনদেনের পূর্বে অবশ্যই সশরীরে উপস্থিত হয়ে বাসা দেখার অনুরোধ করা হল
+    </div>
     <p className="terms-intro">
       Please read these terms carefully before using Rentnest
     </p>
