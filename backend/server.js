@@ -24,7 +24,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));                              // Allow frontend to connect
-app.use(express.json()); // Parse JSON data from requests
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // Parse JSON data from requests
 
 // Basic test route
 app.get('/', (req, res) => {

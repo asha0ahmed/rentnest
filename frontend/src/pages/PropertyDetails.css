@@ -1,6 +1,6 @@
 .property-details-page {
   min-height: 100vh;
-  padding: 40px 0;
+  padding: 40px 20px;
   background: #f9fafb;
 }
 
@@ -37,6 +37,7 @@
 /* Image Gallery */
 .image-gallery {
   margin-bottom: 40px;
+  width: 100%;
 }
 
 .main-image {
@@ -72,6 +73,7 @@
   justify-content: center;
   color: #1f2937;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
 .prev-btn {
@@ -125,11 +127,14 @@
   border-color: #2563eb;
 }
 
-/* Details Grid */
+/* Details Grid - FIXED */
 .details-grid {
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: 1fr;
   gap: 30px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* Main Content */
@@ -138,15 +143,18 @@
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .title-section {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
   margin-bottom: 30px;
   padding-bottom: 30px;
   border-bottom: 2px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .title-section h1 {
@@ -155,6 +163,8 @@
   color: #1f2937;
   margin-bottom: 12px;
   line-height: 1.3;
+  flex: 1;
+  min-width: 200px;
 }
 
 .location {
@@ -165,7 +175,7 @@
 .price-tag {
   text-align: right;
   flex-shrink: 0;
-  margin-left: 20px;
+  white-space: nowrap;
 }
 
 .price {
@@ -229,6 +239,7 @@
   line-height: 1.8;
   color: #4b5563;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Amenities */
@@ -296,6 +307,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
 .contact-card {
@@ -303,8 +315,8 @@
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 80px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .contact-card h3 {
@@ -340,6 +352,7 @@
   font-size: 16px;
   color: #1f2937;
   font-weight: 600;
+  word-break: break-word;
 }
 
 .phone-link,
@@ -362,6 +375,8 @@
   font-size: 16px;
   font-weight: 600;
   margin-top: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .status-available {
@@ -380,38 +395,128 @@
   border-radius: 8px;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
+/* ============================================
+   RESPONSIVE DESIGN - TWO COLUMN ON LARGER SCREENS
+   ============================================ */
+
+/* Tablet - 768px and up */
+@media (min-width: 768px) {
+  .property-details-page {
+    padding: 40px 20px;
+  }
+
+  .main-content {
+    padding: 40px;
+  }
+
   .details-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+    align-items: start;
+  }
+
+  .sidebar {
+    width: 100%;
   }
 
   .contact-card {
-    position: static;
+    position: sticky;
+    top: 100px;
+    width: 100%;
+  }
+
+  .quick-info {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .amenities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .terms-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 768px) {
+/* Desktop - 1024px and up */
+@media (min-width: 1024px) {
+  .property-details-page {
+    padding: 40px;
+  }
+
+  .main-content {
+    padding: 40px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+  }
+
+  .contact-card {
+    position: sticky;
+    top: 120px;
+  }
+
+  .quick-info {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .amenities-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .terms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large Desktop - 1400px and up */
+@media (min-width: 1400px) {
+  .main-content {
+    padding: 40px 50px;
+  }
+
+  .details-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .contact-card {
+    min-width: 380px;
+  }
+}
+
+/* Mobile - Below 768px */
+@media (max-width: 767px) {
+  .property-details-page {
+    padding: 20px;
+  }
+
   .main-image {
     height: 300px;
   }
 
   .main-content {
-    padding: 24px;
+    padding: 20px;
+    border-radius: 8px;
   }
 
   .title-section {
     flex-direction: column;
-    gap: 20px;
-  }
-
-  .price-tag {
-    text-align: left;
-    margin-left: 0;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
   }
 
   .title-section h1 {
     font-size: 24px;
+    flex: none;
+  }
+
+  .price-tag {
+    text-align: left;
+    width: 100%;
   }
 
   .price {
@@ -420,12 +525,14 @@
 
   .quick-info {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 12px;
     padding: 16px;
+    margin-bottom: 30px;
   }
 
   .section h2 {
     font-size: 20px;
+    margin-bottom: 16px;
   }
 
   .amenities-grid {
@@ -434,6 +541,20 @@
 
   .terms-grid {
     grid-template-columns: 1fr;
+  }
+
+  .term-item {
+    padding: 12px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .contact-card {
+    position: static;
+    margin-top: 30px;
   }
 
   .nav-btn {
@@ -453,5 +574,14 @@
   .thumbnail {
     width: 80px;
     height: 60px;
+  }
+
+  .contact-info {
+    gap: 16px;
+  }
+
+  .contact-card h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
   }
 }

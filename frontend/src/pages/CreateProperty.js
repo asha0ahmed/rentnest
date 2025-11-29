@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { propertyAPI } from '../services/api';
+
 import './PropertyForm.css';
 
 const CreateProperty = () => {
@@ -24,7 +25,8 @@ const CreateProperty = () => {
     sizeUnit: 'sqft',
     furnished: 'unfurnished',
     amenities: '',
-    photoUrls: '',
+    images: [],
+    imagePreviews: [],
     contactName: '',
     contactPhone: '',
     contactEmail: '',
@@ -44,27 +46,70 @@ const CreateProperty = () => {
     });
   };
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (files.length + formData.images.length > 5) {
+      alert('Maximum 5 images allowed');
+      return;
+    }
+
+    setFormData({
+      ...formData,
+      images: [...formData.images, ...files]
+    });
+
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          imagePreviews: [...prev.imagePreviews, reader.result]
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index) => {
+    setFormData({
+      ...formData,
+      images: formData.images.filter((_, i) => i !== index),
+      imagePreviews: formData.imagePreviews.filter((_, i) => i !== index)
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (formData.images.length === 0) {
+      alert('Please select at least one image');
+      return;
+    }
+    
     setError('');
     setLoading(true);
 
-    // Prepare data for API
-    const propertyData = {
-      title: formData.title,
-      description: formData.description,
-      propertyType: formData.propertyType,
-      location: {
+    try {
+      const uploadFormData = new FormData();
+      
+      uploadFormData.append('title', formData.title);
+      uploadFormData.append('description', formData.description);
+      uploadFormData.append('propertyType', formData.propertyType);
+      
+      uploadFormData.append('location', JSON.stringify({
         division: formData.division,
         district: formData.district,
         area: formData.area,
         address: formData.address
-      },
-      rent: {
+      }));
+      
+      uploadFormData.append('rent', JSON.stringify({
         amount: Number(formData.rentAmount),
         period: formData.rentPeriod
-      },
-      features: {
+      }));
+      
+      uploadFormData.append('features', JSON.stringify({
         bedrooms: formData.bedrooms ? Number(formData.bedrooms) : undefined,
         bathrooms: formData.bathrooms ? Number(formData.bathrooms) : undefined,
         size: formData.sizeValue ? {
@@ -72,29 +117,42 @@ const CreateProperty = () => {
           unit: formData.sizeUnit
         } : undefined,
         furnished: formData.furnished
-      },
-      amenities: formData.amenities ? formData.amenities.split(',').map(a => a.trim()) : [],
-      photos: formData.photoUrls ? formData.photoUrls.split('\n').filter(url => url.trim()).map(url => ({
-        url: url.trim(),
-        caption: ''
-      })) : [],
-      contact: {
+      }));
+      
+      uploadFormData.append('amenities', JSON.stringify(
+        formData.amenities ? formData.amenities.split(',').map(a => a.trim()) : []
+      ));
+      
+      uploadFormData.append('contact', JSON.stringify({
         name: formData.contactName,
         phone: formData.contactPhone,
         email: formData.contactEmail || undefined
-      },
-      terms: {
+      }));
+      
+      uploadFormData.append('terms', JSON.stringify({
         minimumStay: formData.minimumStay || undefined,
         securityDeposit: formData.securityDeposit ? Number(formData.securityDeposit) : undefined,
         utilitiesIncluded: formData.utilitiesIncluded,
         petsAllowed: formData.petsAllowed,
         smokingAllowed: formData.smokingAllowed,
         additionalRules: formData.additionalRules || undefined
-      }
-    };
-
-    try {
-      await propertyAPI.createProperty(propertyData);
+      }));
+      
+      formData.images.forEach(image => {
+        uploadFormData.append('images', image);
+      });
+      
+      await axios.post(
+        `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/properties`,
+        uploadFormData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
       alert('Property created successfully!');
       navigate('/dashboard/owner');
     } catch (err) {
@@ -364,21 +422,63 @@ const CreateProperty = () => {
             <h2>Photos</h2>
             
             <div className="form-group">
-              <label className="form-label">Photo URLs (one per line)</label>
-              <textarea
-                name="photoUrls"
-                className="form-textarea"
-                placeholder="https://example.com/photo1.jpg
-https://example.com/photo2.jpg
-https://example.com/photo3.jpg"
-                value={formData.photoUrls}
-                onChange={handleChange}
-                rows="5"
+              <label className="form-label">Upload Property Photos (Max 5)</label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageChange}
+                className="form-input"
+                style={{ padding: '12px' }}
               />
               <small className="form-hint">
-                Add image URLs from Unsplash, Imgur, or any image hosting site. One URL per line.
+                Select up to 5 images. Supported formats: JPG, PNG, GIF
               </small>
             </div>
+
+            {/* Image Previews */}
+            {formData.imagePreviews.length > 0 && (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                gap: '12px',
+                marginTop: '16px'
+              }}>
+                {formData.imagePreviews.map((preview, index) => (
+                  <div key={index} style={{
+                    position: 'relative',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    aspectRatio: '1'
+                  }}>
+                    <img src={preview} alt={`Preview ${index}`} style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }} />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        background: 'rgba(0,0,0,0.7)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '24px',
+                        height: '24px',
+                        cursor: 'pointer',
+                        fontSize: '16px'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Contact Information */}

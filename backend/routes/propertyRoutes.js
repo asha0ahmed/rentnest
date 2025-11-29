@@ -1,12 +1,21 @@
 const express = require('express');
+const multer = require('multer');
+const cloudinary = require('../config/cloudinary');
 const router = express.Router();
 const Property = require('../models/Property');
 const { protect, isOwner } = require('../middleware/auth');
 
+// Multer setup - store in memory
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB per file
+});
+
 // @route   POST /api/properties
-// @desc    Create a new property listing (Owner only)
+// @desc    Create a new property listing with images (Owner only)
 // @access  Private (Owner)
-router.post('/', protect, isOwner, async (req, res) => {
+router.post('/', protect, isOwner, upload.array('images', 5), async (req, res) => {
   try {
     const {
       title,
@@ -16,32 +25,62 @@ router.post('/', protect, isOwner, async (req, res) => {
       rent,
       features,
       amenities,
-      photos,
       contact,
       terms
     } = req.body;
 
+    // Parse JSON strings from FormData
+    const parsedLocation = JSON.parse(location);
+    const parsedRent = JSON.parse(rent);
+    const parsedFeatures = JSON.parse(features);
+    const parsedAmenities = JSON.parse(amenities);
+    const parsedContact = JSON.parse(contact);
+    const parsedTerms = JSON.parse(terms);
+
     // Validation
-    if (!title || !description || !propertyType || !location || !rent || !contact) {
+    if (!title || !description || !propertyType || !parsedLocation || !parsedRent || !parsedContact) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields'
       });
     }
 
-    // Create property with owner reference
+    // Upload images to Cloudinary
+    const uploadedPhotos = [];
+    
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'rentnest/properties' },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          stream.end(file.buffer);
+        });
+
+        uploadedPhotos.push({
+          url: result.secure_url,
+          caption: ''
+        });
+      }
+    }
+
+    // Create property
     const property = await Property.create({
       owner: req.user._id,
       title,
       description,
       propertyType,
-      location,
-      rent,
-      features,
-      amenities,
-      photos,
-      contact,
-      terms
+      location: parsedLocation,
+      rent: parsedRent,
+      features: parsedFeatures,
+      amenities: parsedAmenities,
+      photos: uploadedPhotos,
+      contact: parsedContact,
+      terms: parsedTerms
     });
 
     res.status(201).json({
@@ -87,7 +126,7 @@ router.get('/', async (req, res) => {
     }
 
     if (division) {
-      filter['location.division'] = new RegExp(division, 'i'); // case-insensitive
+      filter['location.division'] = new RegExp(division, 'i');
     }
 
     if (district) {
@@ -197,7 +236,6 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Get property error:', error);
     
-    // Handle invalid ID format
     if (error.kind === 'ObjectId') {
       return res.status(404).json({
         success: false,
@@ -226,7 +264,6 @@ router.put('/:id', protect, isOwner, async (req, res) => {
       });
     }
 
-    // Check if the property belongs to the logged-in owner
     if (property.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -234,13 +271,12 @@ router.put('/:id', protect, isOwner, async (req, res) => {
       });
     }
 
-    // Update property
     property = await Property.findByIdAndUpdate(
       req.params.id,
       req.body,
       {
-        new: true, // Return updated document
-        runValidators: true // Run schema validators
+        new: true,
+        runValidators: true
       }
     );
 
@@ -273,7 +309,6 @@ router.delete('/:id', protect, isOwner, async (req, res) => {
       });
     }
 
-    // Check if the property belongs to the logged-in owner
     if (property.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -311,7 +346,6 @@ router.patch('/:id/toggle-availability', protect, isOwner, async (req, res) => {
       });
     }
 
-    // Check ownership
     if (property.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -319,7 +353,6 @@ router.patch('/:id/toggle-availability', protect, isOwner, async (req, res) => {
       });
     }
 
-    // Toggle availability
     property.isAvailable = !property.isAvailable;
     await property.save();
 
