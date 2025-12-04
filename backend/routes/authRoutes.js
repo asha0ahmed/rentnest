@@ -2,11 +2,45 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const { body, validationResult } = require('express-validator');
 
 // @route   POST /api/auth/signup
 // @desc    Register a new user (Tenant or Owner)
 // @access  Public
-router.post('/signup', async (req, res) => {
+router.post('/signup', [
+  // Validation rules
+  body('fullName')
+    .trim()
+    .notEmpty()
+    .withMessage('Full name is required')
+    .isLength({ min: 2 })
+    .withMessage('Name must be at least 2 characters'),
+  body('password')
+    .trim()
+    .notEmpty()
+    .withMessage('Password is required')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters'),
+  body('accountType')
+    .isIn(['tenant', 'owner'])
+    .withMessage('Account type must be tenant or owner'),
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('Invalid email format'),
+  body('mobile')
+    .optional()
+    .matches(/^01[0-9]{9}$/)
+    .withMessage('Invalid Bangladesh mobile number')
+], async (req, res) => {
+  // Check for validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: errors.array()[0].msg
+    });
+  }
   try {
     const { fullName, email, mobile, password, accountType } = req.body;
 
@@ -88,7 +122,27 @@ router.post('/signup', async (req, res) => {
 // @route   POST /api/auth/login
 // @desc    Login user (with email/mobile + password)
 // @access  Public
-router.post('/login', async (req, res) => {
+router.post('/login', [
+  // Validation rules
+  body('emailOrMobile')
+    .trim()
+    .notEmpty()
+    .withMessage('Email or mobile number is required'),
+  body('password')
+    .trim()
+    .notEmpty()
+    .withMessage('Password is required')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters')
+], async (req, res) => {
+  // Check for validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: errors.array()[0].msg
+    });
+  }
   try {
     const { emailOrMobile, password } = req.body;
 

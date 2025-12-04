@@ -2,6 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 // Import database connection
 const connectDatabase = require('./config/database');
@@ -15,6 +17,9 @@ const app = express();
 
 // Connect to Database
 connectDatabase();
+
+// Security headers
+app.use(helmet());
 
 // Middleware - These run before your routes
 
@@ -41,7 +46,31 @@ app.get('/', (req, res) => {
   });
 });
 
+// Rate limiting - General (100 requests per 15 minutes)
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window
+  message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting - Auth (10 login attempts per 15 minutes)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per window
+  message: 'Too many login attempts, please try again after 15 minutes.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply general rate limiter to all routes
+app.use(generalLimiter);
+
 // API Routes
+// API Routes (with rate limiting for auth)
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/signup', authLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 
@@ -50,6 +79,25 @@ app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'Route not found'
+  });
+});
+
+// Global error handler (ADD THIS)
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message); // Log for debugging
+  
+  // Don't expose error details in production
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(err.status || 500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+  
+  // Show details in development
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Server error'
   });
 });
 

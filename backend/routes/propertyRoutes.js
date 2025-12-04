@@ -4,6 +4,9 @@ const cloudinary = require('../config/cloudinary');
 const router = express.Router();
 const Property = require('../models/Property');
 const { protect, isOwner } = require('../middleware/auth');
+const { checkInappropriateContent, checkPhoneNumber, checkPriceValidity } = require('../utils/contentFilter');
+const { validateImage, checkImageDimensions } = require('../utils/imageChecker');
+const { sanitizeString } = require('../utils/sanitize');
 
 // Multer setup - store in memory
 const storage = multer.memoryStorage();
@@ -29,6 +32,28 @@ router.post('/', protect, isOwner, upload.array('images', 5), async (req, res) =
       terms
     } = req.body;
 
+    // ========== CONTENT FILTERING -==========
+    
+    // Check title for inappropriate content
+    const titleCheck = checkInappropriateContent(title);
+    if (!titleCheck.isClean) {
+      return res.status(400).json({
+        success: false,
+        message: `Title rejected: ${titleCheck.reason}`
+      });
+    }
+    
+    // Check description for inappropriate content
+    const descCheck = checkInappropriateContent(description);
+    if (!descCheck.isClean) {
+      return res.status(400).json({
+        success: false,
+        message: `Description rejected: ${descCheck.reason}`
+      });
+    }
+    
+    // ========== END CONTENT FILTERING ==========
+
     // Parse JSON strings from FormData
     const parsedLocation = JSON.parse(location);
     const parsedRent = JSON.parse(rent);
@@ -37,6 +62,28 @@ router.post('/', protect, isOwner, upload.array('images', 5), async (req, res) =
     const parsedContact = JSON.parse(contact);
     const parsedTerms = JSON.parse(terms);
 
+    // ========== ADDITIONAL VALIDATIONS  ==========
+    
+    // Check phone number
+    const phoneCheck = checkPhoneNumber(parsedContact.phone);
+    if (!phoneCheck.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: `Phone number rejected: ${phoneCheck.reason}`
+      });
+    }
+    
+    // Check price validity
+    const priceCheck = checkPriceValidity(parsedRent.amount, propertyType);
+    if (!priceCheck.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: `Price rejected: ${priceCheck.reason}`
+      });
+    }
+    
+    // ========== END ADDITIONAL VALIDATIONS ==========
+
     // Validation
     if (!title || !description || !propertyType || !parsedLocation || !parsedRent || !parsedContact) {
       return res.status(400).json({
@@ -44,29 +91,61 @@ router.post('/', protect, isOwner, upload.array('images', 5), async (req, res) =
         message: 'Please provide all required fields'
       });
     }
-
-    // Upload images to Cloudinary
-    const uploadedPhotos = [];
-    
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const result = await new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: 'rentnest/properties' },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          stream.end(file.buffer);
-        });
-
-        uploadedPhotos.push({
-          url: result.secure_url,
-          caption: ''
-        });
-      }
+    // Basic image validation
+if (req.files && req.files.length > 0) {
+  // Validate first
+  for (const file of req.files) {
+    if (file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        message: 'Image size must be less than 5MB'
+      });
     }
+    
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Only JPG, PNG, and WebP images are allowed'
+      });
+    }
+  }
+}
+
+// Upload images to Cloudinary
+const uploadedPhotos = [];
+
+if (req.files && req.files.length > 0) {
+  for (const file of req.files) {
+    try {
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { 
+            folder: 'rentnest/properties',
+            resource_type: 'image'
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+
+      uploadedPhotos.push({
+        url: result.secure_url,
+        caption: ''
+      });
+      
+    } catch (error) {
+      console.error('Image upload error:', error);
+      return res.status(400).json({
+        success: false,
+        message: 'Failed to upload image. Please try again.'
+      });
+    }
+  }
+}
 
     // Create property
     const property = await Property.create({
@@ -126,15 +205,18 @@ router.get('/', async (req, res) => {
     }
 
     if (division) {
-      filter['location.division'] = new RegExp(division, 'i');
+      const safeDivision = sanitizeString(division);
+      filter['location.division'] = new RegExp(`^${safeDivision}$`, 'i');
     }
 
     if (district) {
-      filter['location.district'] = new RegExp(district, 'i');
+      const safeDistrict = sanitizeString(district);
+      filter['location.district'] = new RegExp(`^${safeDistrict}$`, 'i');
     }
 
     if (area) {
-      filter['location.area'] = new RegExp(area, 'i');
+      const safeArea = sanitizeString(area);
+      filter['location.area'] = new RegExp(`^${safeArea}$`, 'i');
     }
 
     if (minRent || maxRent) {
@@ -153,10 +235,11 @@ router.get('/', async (req, res) => {
 
     // Search in title and description
     if (search) {
+      const safeSearch = sanitizeString(search);
       filter.$or = [
-        { title: new RegExp(search, 'i') },
-        { description: new RegExp(search, 'i') }
-      ];
+      { title: new RegExp(safeSearch, 'i') },
+      { description: new RegExp(safeSearch, 'i') }
+     ];
     }
 
     // Pagination
