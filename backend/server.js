@@ -24,7 +24,10 @@ app.use(helmet());
 // Middleware - These run before your routes
 
 app.use(cors({
-  origin: ['https://rentnest-three.vercel.app', 'http://localhost:3000'],
+  origin: ['https://rentnesto.xyz',
+           'https://www.rentnesto.xyz',
+           'https://rentnest-three.vercel.app', 
+           'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
