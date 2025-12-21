@@ -15,6 +15,9 @@ const propertyRoutes = require('./routes/propertyRoutes');
 // Create Express app
 const app = express();
 
+// Serve static files from public folder
+app.use(express.static('public'));
+
 // Connect to Database
 connectDatabase();
 
@@ -49,24 +52,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Add this to backend/server.js (right after the test route)
 
-app.get('/sitemap.xml', (req, res) => {
-  res.set('Content-Type', 'application/xml');
-  res.set('Charset', 'utf-8');
-  
-  const sitemap = '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
-    '<url><loc>https://rentnesto.xyz/</loc><lastmod>2025-01-20</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>' +
-    '<url><loc>https://rentnesto.xyz/properties</loc><lastmod>2025-01-20</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>' +
-    '<url><loc>https://rentnesto.xyz/signup</loc><lastmod>2025-01-20</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>' +
-    '<url><loc>https://rentnesto.xyz/login</loc><lastmod>2025-01-20</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>' +
-    '<url><loc>https://rentnesto.xyz/properties/create</loc><lastmod>2025-01-20</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>' +
-    '<url><loc>https://rentnesto.xyz/dashboard/owner</loc><lastmod>2025-01-20</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>' +
-    '</urlset>';
-  
-  res.send(sitemap);
-});
 
 // Rate limiting - General (100 requests per 15 minutes)
 const generalLimiter = rateLimit({
