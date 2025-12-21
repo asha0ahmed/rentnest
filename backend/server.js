@@ -18,6 +18,18 @@ const app = express();
 // Serve static files from public folder
 app.use(express.static('public'));
 
+// Sitemap header
+app.get('/sitemap.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml');
+  res.sendFile(__dirname + '/public/sitemap.xml');
+});
+
+// Robots.txt header
+app.get('/robots.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.sendFile(__dirname + '/public/robots.txt');
+});
+
 // Connect to Database
 connectDatabase();
 
