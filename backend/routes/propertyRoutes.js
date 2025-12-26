@@ -233,13 +233,17 @@ router.get('/', async (req, res) => {
       filter['features.furnished'] = furnished;
     }
 
-    // Search in title and description
+   // Search in title, description, and location fields
     if (search) {
       const safeSearch = sanitizeString(search);
       filter.$or = [
-      { title: new RegExp(safeSearch, 'i') },
-      { description: new RegExp(safeSearch, 'i') }
-     ];
+        { title: new RegExp(safeSearch, 'i') },
+        { description: new RegExp(safeSearch, 'i') },
+        { 'location.address': new RegExp(safeSearch, 'i') },
+        { 'location.area': new RegExp(safeSearch, 'i') },
+        { 'location.district': new RegExp(safeSearch, 'i') },
+        { 'location.division': new RegExp(safeSearch, 'i') }
+      ];
     }
 
     // Pagination
