@@ -298,7 +298,7 @@ const CreateProperty = () => {
             
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Rent Amount-বিস্তারিত ঠিকানা (BDT) *</label>
+                <label className="form-label">Rent Amount-ভাড়ার পরিমাণ (BDT) *</label>
                 <input
                   type="number"
                   name="rentAmount"
