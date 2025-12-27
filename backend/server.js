@@ -38,23 +38,7 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Serve static files from public folder
-app.use(express.static('public'));
 
-// ========================================
-// SITEMAP & ROBOTS (AFTER MIDDLEWARE)
-// ========================================
-app.get('/sitemap.xml', (req, res) => {
-  res.setHeader('Content-Type', 'application/xml');
-  res.setHeader('Cache-Control', 'public, max-age=3600');
-  res.sendFile(__dirname + '/public/sitemap.xml');
-});
-
-app.get('/robots.txt', (req, res) => {
-  res.setHeader('Content-Type', 'text/plain');
-  res.setHeader('Cache-Control', 'public, max-age=3600');
-  res.sendFile(__dirname + '/public/robots.txt');
-});
 
 // Basic test route
 app.get('/', (req, res) => {
@@ -65,9 +49,7 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',
-      properties: '/api/properties',
-      sitemap: '/sitemap.xml',
-      robots: '/robots.txt'
+      properties: '/api/properties'
     }
   });
 });
@@ -139,6 +121,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📱 Mobile: http://192.168.1.108:${PORT}`);
   console.log(`📝 Auth API: http://192.168.1.108:${PORT}/api/auth`);
   console.log(`🏘️  Properties API: http://192.168.1.108:${PORT}/api/properties`);
-  console.log(`🤖 Sitemap: http://192.168.1.108:${PORT}/sitemap.xml`);
-  console.log(`📄 Robots: http://192.168.1.108:${PORT}/robots.txt`);
+
 });
