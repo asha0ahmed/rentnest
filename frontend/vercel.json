@@ -8,12 +8,43 @@
           "value": "application/xml; charset=utf-8"
         }
       ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/api/:path*",
+      "destination": "https://rentnest-backend.onrender.com/api/:path*"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/sitemap.xml",
+      "dest": "/sitemap.xml",
+      "methods": ["GET"]
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt",
+      "methods": ["GET"]
+    },
+    {
+      "src": "/google.*\\.html",
+      "dest": "/google:1.html",
+      "methods": ["GET"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html",
+      "methods": ["GET"]
     }
   ]
 }
