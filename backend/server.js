@@ -23,12 +23,16 @@ connectDatabase();
 // Security headers
 app.use(helmet());
 
-// CORS Middleware
+// CORS Middleware - with environment variable support
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['https://rentnesto.xyz',
+     'https://www.rentnesto.xyz',
+     'https://rentnest-three.vercel.app', 
+     'http://localhost:3000'];
+
 app.use(cors({
-  origin: ['https://rentnesto.xyz',
-           'https://www.rentnesto.xyz',
-           'https://rentnest-three.vercel.app', 
-           'http://localhost:3000'],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -38,7 +42,11 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-
+// Request logging middleware (basic)
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
+});
 
 // Basic test route
 app.get('/', (req, res) => {
@@ -54,7 +62,14 @@ app.get('/', (req, res) => {
   });
 });
 
-
+// Rate limiting - Auth (10 login attempts per 15 minutes)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per window
+  message: 'Too many login attempts, please try again after 15 minutes.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Rate limiting - General (100 requests per 15 minutes)
 const generalLimiter = rateLimit({
@@ -65,22 +80,14 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Rate limiting - Auth (10 login attempts per 15 minutes)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 attempts per window
-  message: 'Too many login attempts, please try again after 15 minutes.',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Apply general rate limiter to all routes
-app.use(generalLimiter);
-
-
-// API Routes (with rate limiting for auth)
+// API Routes - Apply specific auth limiter FIRST (before general limiter)
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/signup', authLimiter);
+
+// Then apply general rate limiter to all routes
+app.use(generalLimiter);
+
+// Route handlers
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 
